@@ -51,6 +51,7 @@ app.get('/students', (req, res) => {
 app.get('/students/average', (req, res) => {
     con.query(
         `SELECT 
+            students.id,
             students.firstName,
             students.lastName,
             AVG(test_grades.grade) AS average FROM students 
@@ -89,26 +90,25 @@ app.get('/students/average-by-city', (req, res) => {
     )
 });
 
-app.get('/students/:id', (req, res) => {
-    const {id} = req.params
-    con.query(
-        `SELECT
-            students.firstName,
-            students.lastName,
-            tests.name AS testName,
-            test_grades.grade
-        FROM
-            test_grades
-        LEFT JOIN students ON test_grades.studentId = students.id
-        LEFT JOIN tests ON test_grades.testId = tests.id
-        WHERE
-            students.id = ?`, [id],
-        (err, results) => {
-            if (err) {
-                throw err
-            }
-            res.send(results)
-            console.log('Student data sent to client')
+app.get("/students/:id", (req, res) => {
+    const { id } = req.params;
+
+    con.query("SELECT * FROM students WHERE id = ?", [id], (err, result) => {
+        if (err) {
+            throw err;
         }
-    )
+
+        const user = result.pop();
+
+        con.query("SELECT test_grades.id, tests.name, test_grades.grade FROM test_grades LEFT JOIN tests ON tests.id = test_grades.testId WHERE test_grades.studentId = ?", [id], (err, grades) => {
+            if (err) {
+                throw err;
+            }
+    
+            res.send({
+                user,
+                grades
+            });
+        });
+    });
 });
