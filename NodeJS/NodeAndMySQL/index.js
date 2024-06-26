@@ -1,6 +1,13 @@
 const express = require('express')
 const mysql = require('mysql2')
 const cors = require('cors')
+const app = express()
+
+app.use(express.json())
+
+app.use((req, res, next) =>{
+    setTimeout(next, 500)
+})
 
 const con = mysql.createConnection({
     host: 'localhost',
@@ -18,7 +25,6 @@ con.connect(err => {
 }
 )
 
-const app = express()
 
 app.listen(3890, () => {
     console.log('Server is running on http://localhost:3890')
@@ -111,4 +117,14 @@ app.get("/students/:id", (req, res) => {
             });
         });
     });
-});
+})
+
+app.put('/students/:studentId', (req, res) => {
+    const { studentId } = req.params;
+    const grades = req.body;
+
+    for (const g of grades) {
+        con.query('UPDATE test_grades SET grade = ? WHERE id = ? AND studentId = ?', [g.grade, g.id, studentId] )
+    }
+    res.send({})
+})

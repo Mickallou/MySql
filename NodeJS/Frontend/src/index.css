@@ -20,3 +20,76 @@ code {
   min-height: 500px;
   padding: 12px;
 }
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.grade {
+  width: 35px;
+  font-size: 18px;
+  border: none;
+  background: none;
+  border-bottom: 1px solid #607D8B;
+  padding: 4px;
+  text-align: center;
+}
+
+button.save{
+  background-color: #62b53f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+}
+button.save:hover {
+  background-color: #70a958;
+}
+header.student {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #e4e4e4;
+  margin-bottom: 12px;
+  border-radius: 6px 6px 0 0;
+  align-items: center;
+  position: sticky;
+  top: 0;
+}
+header.student h2 {
+  margin: 0;
+}
+
+.loaderFrame {
+  position: fixed;
+  z-index: 999;
+  background-color: #000000d1;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader {
+  border: 16px solid #5e5e5e;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
