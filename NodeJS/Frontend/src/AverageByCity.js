@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './Table.css'
+import { GeneralContext } from './App';
 
 export default function AverageByCity() {
     const [students, setStudents] = useState([]);
     const [min, setMin] = useState([]);
     const [max, setMax] = useState([]);
+    const { setLoading } = useContext(GeneralContext)
     
     useEffect(() => {
+        setLoading(true)
         fetch("http://localhost:3890/students/average-by-city")
         .then(res => res.json())
         .then(data => {
@@ -14,9 +17,13 @@ export default function AverageByCity() {
             const numbres = data.map((student) => +student.averageByCity);
             setMin(Math.min(...numbres));
             setMax(Math.max(...numbres));
-        });
-    }, []);
+        })
+        .finally(() => setLoading(false))
+    }, [setLoading]);
     return (
+        <>      
+        {  
+        students.length !== 0 &&
         <table>
             <thead>
                 <tr>
@@ -38,6 +45,7 @@ export default function AverageByCity() {
                 ))}
             </tbody>
         </table>
-        
+            }
+        </>
     )
 }

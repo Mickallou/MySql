@@ -106,7 +106,7 @@ app.get("/students/:id", (req, res) => {
 
         const user = result.pop();
 
-        con.query("SELECT test_grades.id, tests.name, test_grades.grade FROM test_grades LEFT JOIN tests ON tests.id = test_grades.testId WHERE test_grades.studentId = ?", [id], (err, grades) => {
+        con.query("SELECT test_grades.id, tests.id AS testId, tests.name, test_grades.grade FROM test_grades LEFT JOIN tests ON tests.id = test_grades.testId WHERE test_grades.studentId = ?", [id], (err, grades) => {
             if (err) {
                 throw err;
             }
@@ -128,3 +128,128 @@ app.put('/students/:studentId', (req, res) => {
     }
     res.send({})
 })
+
+app.get('/dashboard/students/amount', (req, res) => {
+    con.query('SELECT COUNT(*) amount FROM students', 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results[0].amount.toString())
+    })
+})
+app.get('/dashboard/cities/amount', (req, res) => {
+    con.query('SELECT COUNT(DISTINCT city) amount FROM students', 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results[0].amount.toString())
+    })
+})
+app.get('/dashboard/tests/amount', (req, res) => {
+    con.query('SELECT COUNT(*) amount FROM tests', 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results[0].amount.toString())
+    })
+})
+app.get('/dashboard/tests/avg', (req, res) => {
+    con.query('SELECT AVG(grade) avg FROM test_grades', 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results[0].avg.toString())
+    })
+})
+app.get('/dashboard/students/the-best', (req, res) => {
+    con.query(`
+            SELECT
+                s.firstName,
+                s.lastName,
+                AVG(tg.grade) grade
+            FROM test_grades AS tg
+            LEFT JOIN students AS s
+            ON s.id = tg.studentId
+            GROUP BY s.id
+            ORDER BY grade DESC
+            LIMIT 1`, 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results.pop())
+    })
+})
+app.get('/dashboard/cities/the-best', (req, res) => {
+    con.query(`
+            SELECT
+                s.city,
+                AVG(tg.grade) grade
+            FROM test_grades AS tg
+            LEFT JOIN students AS s
+            ON s.id = tg.studentId
+            GROUP BY s.city
+            ORDER BY grade DESC
+            LIMIT 1`, 
+    (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results.pop())
+    })
+})
+app.get('/dashboard/students/birthday', (req, res) => {
+    con.query(`
+        SELECT firstName, lastName, 
+        TIMESTAMPDIFF(YEAR, birthday, CURDATE()) AS age 
+        FROM students WHERE MONTH(birthday) = MONTH(CURRENT_DATE);`,
+            (err, results) => {
+        if (err) {
+            throw err 
+        }
+        res.send(results)
+    })
+})
+
+app.get('/tests', (req, res) => {
+    con.query(`SELECT tests.id, tests.name, AVG(test_grades.grade) AS avg
+                FROM tests
+                LEFT JOIN test_grades
+                ON tests.id = test_grades.testId
+                GROUP BY tests.id
+            `, (err, results) => {
+        if (err) {
+            throw err
+        }
+        res.send(results)
+        console.log('Tests data sent to client')
+    })
+});
+
+app.post("/students/test", (req, res) => {
+    const { studentID, testId, grade } = req.body;
+    con.query("INSERT INTO test_grades(testId, studentId, grade) VALUES (?, ?, ?)", [testId, studentID, grade], (err, result) => {
+        if (err) {
+            throw err;
+        }
+        res.send({
+            id: result.insertId,
+            testId: +testId,
+            grade: +grade,
+        })
+    });
+});
+
+app.delete("/students/:studentId/test/:testId", (req, res) => {
+    const { studentId, testId } = req.params;
+    con.query("DELETE FROM test_grades WHERE id = ? AND studentId = ?", [testId, studentId], (err, result) => {
+        if (err) {
+            throw err;
+        }
+        res.end();
+    });
+});

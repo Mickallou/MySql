@@ -4,11 +4,12 @@ import Average from './Average';
 import AverageByCity from './AverageByCity';
 import StudentGrades from './StudentGardes';
 import './index.css'
+import Dashboard from './Dashboard';
 
 export default function Router() {
     return (
         <Routes>
-            <Route path="/" element={<p className='frame'>Hello World</p>} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/students" element={<Students />} />
             <Route path='/average' element={<Average />} />
             <Route path='/average-by-city' element={<AverageByCity />} />
