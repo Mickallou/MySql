@@ -1,0 +1,4 @@
+Method: GET
+ROUTE: /Hello
+Time: 17/07/2024 18:31:03
+

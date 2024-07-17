@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta charset="UTF-8">
+            <link rel="stylesheet" href="style.css">
+            <title>Grid</title>
+            <script>
+                function imageChange (ev) {
+                    const [ file ] = ev.target.files
+
+                    if(!file) {
+                        document.getElementById('img').src = ''
+                        document.querySelector('button').disabled = true
+                        return
+                    }
+                    const reader = new FileReader()
+
+                    reader.onload = function (ev) {
+                        document.getElementById('img').src = ev.target.result
+                        document.querySelector('button').disabled = false
+                    }
+
+                    reader.readAsDataURL(file)
+                }
+
+                function send(ev) {
+                    ev.preventDefault();
+
+                    const data = new FormData();
+                    data.append('file', ev.target.elements.file.files[0]);
+
+                    fetch('http://localhost:4444/files/upload', {
+                        method: 'POST',
+                        body: data
+                    })
+                    .then(() => {
+                        location.href = './';
+                    })
+                }
+            </script>
+        </head>
+        <body>
+            <form onsubmit="send(event)">
+                <h1>Upload File</h1>
+                <input type="file" name="file" title="File" onchange='imageChange(event)'>
+                <img id="img" alt="" width="100%">
+                <button type="submit" disabled>Upload</button> 
+            </form>
+        </body>
+    </html> 
