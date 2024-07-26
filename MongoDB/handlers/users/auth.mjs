@@ -17,6 +17,7 @@ app.post("/login", async (req, res) => {
         return;
     }
 
+    req.session.user = user;
     res.send(user)
 });
 
@@ -39,4 +40,17 @@ app.post("/signup", async (req, res) => {
     const newUser = await user.save();
 
     res.send(newUser);
+});
+
+app.get("/login", (req, res) => {
+    if (req.session.user) {
+        res.send(req.session.user);
+    } else {
+        return res.status(401).send("Not logged in");
+    }
+});
+
+app.get("/logout", (req, res) => {
+    delete req.session.user;
+    res.send("Logged out");
 });

@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import session from 'express-session';
+import { User } from './handlers/users/users.model.mjs';
 
 async function main() {
     await mongoose.connect('mongodb://127.0.0.1:27017/full-stack-W310523ER');
@@ -13,6 +15,14 @@ main().catch(err => console.log(err));
 export const app = express();
 
 app.use(express.json());
+
+app.use(session({
+    secret: 'ze-lo-meshane',
+    name: 'full-stack-session',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+}));
 
 app.use(cors({
     origin: true,
@@ -26,7 +36,16 @@ app.listen(8989, () => {
 });
 
 app.get('/', (req, res) => {
-    res.send("Welcome to MongoDB!");
+    if(!req.session.counter) {
+        req.session.counter = 0;
+    }
+    req.session.counter++;
+
+    res.send({
+        message: 'Welcome to the Full Stack App',
+        counter: req.session.counter,
+        user: req.session.user,
+    });
 });
 
 import("./handlers/users/users.mjs");
