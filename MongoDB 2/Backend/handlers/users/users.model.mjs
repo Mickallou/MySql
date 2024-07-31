@@ -7,6 +7,10 @@ export const userSchema = new Schema({
     phone: String,
     email: String,
     password: String,
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 export const User = mongoose.model("users", userSchema);

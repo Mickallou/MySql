@@ -1,15 +1,27 @@
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from './config.mjs';
+
 export const guard = (req, res, next) => {
-    if (req.session.user) {
-        next();
-    } else {
-        res.status(401).send("User is not authenticated");
-    }
+    jwt.verify(req.headers.authorization, JWT_SECRET, (err, data) => {
+        if (err) {
+            res.status(401).send("User is not authenticated");
+            return;
+        } else {
+            next();
+        }
+    }) 
 }
 
-export const bussinessGuard = (req, res, next) => {
-    if (req.session.user?.isBussines){
-        next();
-    } else {
-        res.status(401).send("User is not a bussiness");
+export const getUser = (req) => {
+    if (!req.headers.authorization) {
+        return null
     }
+
+    const user = jwt.verify(req.headers.authorization, JWT_SECRET);
+
+    if(!user) {
+        return null;
+    }
+
+    return user;
 }

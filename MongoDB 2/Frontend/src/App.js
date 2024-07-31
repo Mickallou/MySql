@@ -1,9 +1,9 @@
 import { createContext, useEffect, useState } from 'react';
 import './App.css';
-import Router from './Router';
+import { RouterLogin, Router } from './Router';
 import Loader from './Loader';
-import Login from './Auth/Login';
 import Logout from './Auth/Logout';
+import {jwtDecode} from 'jwt-decode';
 
 export const GeneralContext = createContext();
 
@@ -12,21 +12,13 @@ function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        (async () => {
-            setLoading(true);
-        
-            const res = await fetch("http://localhost:8989/login", {
-                credentials: 'include',
-            });
-
-            if (res.ok) {
-                setUser(await res.json());
-            } else {
-                setUser();
-            }
-
-            setLoading(false);
-        })()
+        const token = localStorage.getItem('token');
+        if (token) {
+            const user = jwtDecode(token);
+            setUser(user);
+        } else {
+            setUser();
+        }
     }, []);
 
     return (
@@ -35,7 +27,7 @@ function App() {
                 user !== null &&
                 <div className="App">
                     {user && <Logout />}
-                    {user ? <Router /> : <Login />}
+                    {user ? <Router /> : <RouterLogin />}
                 </div>
             }
             {loading && <Loader />}

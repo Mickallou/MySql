@@ -1,11 +1,21 @@
 import { app } from "../../App.mjs";
 import { User } from "./users.model.mjs";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../../config.mjs";
+import { UserLogin, UserSignup } from "./users.joi.mjs";
+
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const validate = UserLogin.validate({ email, password });
+
+    const user = await User.findOne({ email, isDeleted: { $ne: true } });
+
+    if(validate.error) {
+        return res.status(403).send(validate.error.details[0].message);
+    }
 
     if (!user) {
         res.status(403).send("Email or Password is incorrect");
@@ -17,12 +27,23 @@ app.post("/login", async (req, res) => {
         return;
     }
 
-    req.session.user = user;
-    res.send(user)
+    const token = jwt.sign({ 
+        userId: user._id, 
+        firstName: user.firstName,
+        lastName: user.lastName,
+    }, JWT_SECRET, { expiresIn: '1h'} );
+
+    res.send(token);
 });
 
 app.post("/signup", async (req, res) => {
     const { firstName, lastName, email, phone, password } = req.body;
+
+    const validate = UserSignup.validate(req.body, { allowUnknown: true });
+
+    if(validate.error) {
+        return res.status(403).send(validate.error.details[0].message);
+    }
 
     if (await User.findOne({ email })) {
         res.status(403).send("Email already exists");
@@ -43,14 +64,5 @@ app.post("/signup", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    if (req.session.user) {
-        res.send(req.session.user);
-    } else {
-        return res.status(401).send("Not logged in");
-    }
-});
-
-app.get("/logout", (req, res) => {
-    delete req.session.user;
-    res.send("Logged out");
+    return res.status(401).send("Please login to access this page");
 });

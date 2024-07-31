@@ -1,6 +1,8 @@
 import './User.css';
 import { useContext, useState } from 'react';
 import { GeneralContext } from '../App';
+import { jwtDecode } from 'jwt-decode' 
+import { Link } from 'react-router-dom';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -19,14 +21,16 @@ export default function Login() {
             credentials: 'include', // מאפשרים שימוש בעוגיות
             method: "POST",
             headers: {
-                'Content-type': 'application/json' // התוכן שאנו שולחים הוא מסוג ג'סון
+                'Content-type': 'application/json', // התוכן שאנו שולחים הוא מסוג ג'סון
             },
             body: JSON.stringify(formData), // התוכן
         });
 
         if (res.ok) {
-            const user = await res.json();
+            const token = await res.text();
+            localStorage.setItem('token', token);
 
+            const user = jwtDecode(token);
             setUser(user);
         } else {
             setLoginError(await res.text());
@@ -68,9 +72,9 @@ export default function Login() {
                 </form>
             </div>
 
-            {/* <p className="signup">
+            <p className="signup">
                 <Link to="/signup">להרשמה לחץ כאן</Link>
-            </p> */}
+            </p>
         </>
     )
 }

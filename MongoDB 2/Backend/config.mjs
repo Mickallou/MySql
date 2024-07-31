@@ -1,0 +1,1 @@
+export const JWT_SECRET = "FullStackW310523ER";

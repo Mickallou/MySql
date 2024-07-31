@@ -2,18 +2,41 @@ import { useEffect, useState } from 'react';
 
 export default function Users() {
     const [users, setUsers] = useState([]);
+    const {isModal, setIsModal} = useState(true);
+    const {newUser, setNewUser} = useState()
 
     useEffect(() => {
         (async () => {
             const res = await fetch("http://localhost:8989/users", {
                 credentials: 'include',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                },
             });
     
             setUsers(await res.json());
         })()
     }, []);
 
+    const remove = async id => {
+        if (!window.confirm("Are you sure you want to  remove this user!")) {
+            return;
+        }
+            await fetch(`http://localhost:8989/users/${id}`, {
+                credentials: 'include',
+                method: "DELETE",
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                },
+            });
+
+        setUsers(users.filter(u => u._id !== id))
+    
+    }
+
     return (
+        <div>
+                
         <table>
             <thead>
                 <tr>
@@ -22,6 +45,7 @@ export default function Users() {
                     <th>שם משפחה</th>
                     <th>אימייל</th>
                     <th>טלפון</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,10 +57,30 @@ export default function Users() {
                             <td>{u.lastName}</td>
                             <td>{u.email}</td>
                             <td>{u.phone}</td>
+                            <td><button className="remove" onClick={() => remove(u._id)}>❌</button></td>
                         </tr>    
                     )
                 }
             </tbody>
         </table>
+
+        { isModal &&
+                <div className="modal-frame">
+                <div className="modal">
+                    <header>
+                        <button className="close" onClick={() => setIsModal(false)}>X</button>
+                        <h2>New User</h2>
+                    </header>
+                    <section >
+                    </section>
+
+                    <footer>
+                        <button className="save">Add</button>
+                    </footer>
+                </div>
+            </div>}
+
+        </div>
+
     )
 }
