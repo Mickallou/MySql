@@ -107,9 +107,7 @@ select, input.gradeModal {
   transition: 0.3s;
   padding: 0 8px;
 }
-.close:hover {
-  scale: 1.1;
-}
+
 .modal section {
   padding: 8px 24px;
 }

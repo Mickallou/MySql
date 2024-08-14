@@ -1,12 +1,17 @@
 import { app } from "../../App.mjs";
-import { getUser, guard } from "../../Guard.mjs";
+import { bussinessGuard, getUser, guard } from "../../Guard.mjs";
 import { Card } from "./cards.model.mjs";
 
-app.get("/cards", guard, async (req, res) => {
+app.get("/cards", async (req, res) => {
     res.send(await Card.find());
 });
 
-app.post("/cards", guard, async (req, res) => {
+app.get("/cards/my-cards", guard, async (req, res) => {
+    const user = getUser(req);
+    res.send(await Card.find({ user_id: user.userId }));
+});
+
+app.post("/cards", guard, bussinessGuard, async (req, res) => {
     const item = req.body;
     const card = new Card({
         title: item.title,

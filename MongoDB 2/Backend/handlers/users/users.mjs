@@ -1,6 +1,6 @@
 import { app } from "../../App.mjs";
 import { User } from "./users.model.mjs";
-import { guard } from "../../Guard.mjs";
+import { guard, getUser } from "../../Guard.mjs";
 
 app.get("/users", guard, async (req, res) => {
     res.send(await User.find({ isDeleted: [false, undefined]}));
@@ -12,6 +12,12 @@ app.get("/users/:id", guard, async (req, res) => {
     if (!user) {
         res.status(403).send("User not found");
         return;
+    }
+
+    if (getUser(req).isAdmin || user._id === getUser(req)._id) {
+        res.send(user);
+    } else {
+        res.status(401).send("You are not authorized to view this user");
     }
 
     res.send(user);

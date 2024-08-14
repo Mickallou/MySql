@@ -2,7 +2,6 @@ import { app } from "../../App.mjs";
 import { User } from "./users.model.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../../config.mjs";
 import { UserLogin, UserSignup } from "./users.joi.mjs";
 
 
@@ -31,13 +30,15 @@ app.post("/login", async (req, res) => {
         userId: user._id, 
         firstName: user.firstName,
         lastName: user.lastName,
-    }, JWT_SECRET, { expiresIn: '1h'} );
+        isBusiness: user.isBusiness,
+        isAdmin: user.isAdmin,
+    }, process.env.JWT_SECRET, { expiresIn: '1h'} );
 
     res.send(token);
 });
 
 app.post("/signup", async (req, res) => {
-    const { firstName, lastName, email, phone, password } = req.body;
+    const { firstName, lastName, email, phone, password, isBusiness } = req.body;
 
     const validate = UserSignup.validate(req.body, { allowUnknown: true });
 
@@ -55,6 +56,7 @@ app.post("/signup", async (req, res) => {
         lastName,
         email,
         phone,
+        isBusiness,
         password: await bcrypt.hash(password, 10),
     });
 
