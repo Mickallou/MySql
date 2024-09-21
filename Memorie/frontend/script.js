@@ -1,10 +1,31 @@
 let player1 = 0;
 let player2 = 0;
 let isFirstPlayer = true;
+let cards = [];
+let isCheat = false
 
-(async () => {
+function bind() {
+    const p1 = document.getElementById('player1')
+    const p2 = document.getElementById('player2')
+
+    p1.querySelector('p').innerText = player1
+    p2.querySelector('p').innerText = player2
+
+    if (isFirstPlayer) {
+        p1.classList.add('current')
+        p2.classList.remove('current')
+    } else {
+        p2.classList.add('current')
+        p1.classList.remove('current')
+    }
+}
+
+async function newGame() {
     const board = document.getElementById("board");
-    const cards = [];
+    board.innerHTML = "";
+    player1 = 0
+    player2 = 0
+    cards = []
 
     const res = await fetch("/images");
     const images = await res.json();
@@ -22,6 +43,7 @@ let isFirstPlayer = true;
         c.div = div;
 
         div.addEventListener("mouseover", () => {
+            if (!isCheat) return
             cards.filter(x => x.i == c.i).forEach(c => {
                 c.div.classList.add("cheat");
             })
@@ -62,6 +84,7 @@ let isFirstPlayer = true;
                         } else {
                             player2++;
                         }
+                        bind()
                     }, 500); 
                 } else {
                     setTimeout(() => {
@@ -72,10 +95,13 @@ let isFirstPlayer = true;
                         current.showed = false;
 
                         isFirstPlayer = !isFirstPlayer;
+                        bind()
                     }, 1500)
                 }
             }
         })
     })
-})();
+    bind()
+}
 
+newGame()

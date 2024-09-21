@@ -17,6 +17,24 @@
         <title>Memorie game</title>
     </head>
     <body>
+        <header>
+            <div id="player1">
+                <h2>Player 1</h2>
+                <p>0</p>
+            </div>
+            <div>
+                <button class="button" onclick="newGame()">New Game</button>
+                <br> <br>
+                <label class="switch">
+                    <input type="checkbox" onchange="isCheat = this.checked"/>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div id="player2">
+                <h2>Player 2</h2>
+                <p>0</p>
+            </div>
+        </header>
         <div id="board">
             
         </div>
